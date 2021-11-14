@@ -1,133 +1,142 @@
-import https from 'https';
+import https from "https"
 
-async function fetch(url:string) : Promise<string> {
-
-    return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
-            let body = '';
-            res.on('data', (chunk) => {
-                body += chunk;
-            });
-            res.on('end', () => {
-                resolve(body);
-            });
-        }).on('error', (err) => {
-            reject(err);
-        });
-    });
+async function fetch(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    https
+      .get(url, res => {
+        let body = ""
+        res.on("data", chunk => {
+          body += chunk
+        })
+        res.on("end", () => {
+          resolve(body)
+        })
+      })
+      .on("error", err => {
+        reject(err)
+      })
+  })
 }
 
 const config = {
-    databaseURL: 'https://mvhs-app-d04d2.firebaseio.com'
-};
+  databaseURL: "https://mvhs-app-d04d2.firebaseio.com"
+}
 
-const ls = localStorage;
-let cache: string | null = null;
+const ls = localStorage
+let cache: string | null = null
 
-let rootDict : any = {};
+let rootDict: any = {}
 
-let timestampCache: string | null = null;
+let timestampCache: string | null = null
 
-let timestampRootDict: any = {};
+let timestampRootDict: any = {}
 
-let currentFetches: {[path:string]: Promise<Record<string, string>>} = {};
+let currentFetches: { [path: string]: Promise<Record<string, string>> } = {}
 
 function getFromLS(path: string) {
-    if (cache === null) {
-        cache = ls.getItem(config.databaseURL);
-        timestampCache = ls.getItem(config.databaseURL + '-timestamp');
-        if (!cache || !timestampCache) {
-            return undefined;
-        }
-        rootDict = JSON.parse(cache);
-        timestampRootDict = JSON.parse(timestampCache);
+  if (cache === null) {
+    cache = ls.getItem(config.databaseURL)
+    timestampCache = ls.getItem(config.databaseURL + "-timestamp")
+    if (!cache || !timestampCache) {
+      return undefined
     }
-    if (cache && rootDict) {
-        let splitPath = path.split('/').filter(e=>e!=="");
-        let dict = rootDict;
-        let timestampDict = timestampRootDict;
-        for (let i = 0; i < splitPath.length; i++) {
-            dict = dict[splitPath[i]];
-            timestampDict = timestampDict[splitPath[i]];
-            if (!dict) {
-                console.log(path + " not cached");
-                return undefined;
-            }
-        }
-        if (timestampDict.timestamp && Date.now() - timestampDict.timestamp < 1000 * 60 * 60 * 24) {
-            return dict;
-        } else {
-            console.log(path + " not cached");
-            return undefined;
-        }
+    rootDict = JSON.parse(cache)
+    timestampRootDict = JSON.parse(timestampCache)
+  }
+  if (cache && rootDict) {
+    let splitPath = path.split("/").filter(e => e !== "")
+    let dict = rootDict
+    let timestampDict = timestampRootDict
+    for (let i = 0; i < splitPath.length; i++) {
+      dict = dict[splitPath[i]]
+      timestampDict = timestampDict[splitPath[i]]
+      if (!dict) {
+        console.log(path + " not cached")
+        return undefined
+      }
     }
+    if (
+      timestampDict.timestamp &&
+      Date.now() - timestampDict.timestamp < 1000 * 60 * 60 * 24
+    ) {
+      return dict
+    } else {
+      console.log(path + " not cached")
+      return undefined
+    }
+  }
 }
 
 async function getFromDb(path: string) {
+  if (path in currentFetches) {
+    const response = await currentFetches[path]
+    return response
+    // we know it's being cached by another thread if it's in currentFetches
+    // so we can just return it
+    // and trust that it's being cached by the other thread
+  }
 
-    if (path in currentFetches) {
-        const response = await currentFetches[path];
-        return response;
-        // we know it's being cached by another thread if it's in currentFetches
-        // so we can just return it
-        // and trust that it's being cached by the other thread
+  console.log("fetching from DB", path)
+  currentFetches[path] = new Promise(async resolve => {
+    const response = await fetch(config.databaseURL + "/" + path + ".json")
+    const data = JSON.parse(response)
+    delete currentFetches[path]
+    resolve(data)
+  })
+  const data = await currentFetches[path]
+  // store in cache variable
+  if (cache === null) {
+    cache = ls.getItem(config.databaseURL)
+    timestampCache = ls.getItem(config.databaseURL + "-timestamp")
+    if (!cache) {
+      cache = "{}"
+      rootDict = {}
+      ls.setItem(config.databaseURL, cache)
+      ls.setItem(config.databaseURL + "-timestamp", JSON.stringify({}))
     }
+  }
+  if (cache) {
+    let dict = rootDict,
+      timestampDict = timestampRootDict
+    let splitPath = path.split("/").filter(e => e !== "")
+    // goes through the path and builds the directory
+    // for the path
+    for (let i = 0; i < splitPath.length - 1; i++) {
+      if (!(splitPath[i] in dict)) {
+        dict[splitPath[i]] = {}
+        timestampDict[splitPath[i]] = {}
+      }
+      dict = dict[splitPath[i]]
+      timestampDict = timestampDict[splitPath[i]]
+      console.log(timestampDict)
+    }
+    dict[splitPath[splitPath.length - 1]] = data
+    timestampDict[splitPath[splitPath.length - 1]] = {
+      timestamp: Date.now()
+    }
+    cache = JSON.stringify(rootDict)
+    ls.setItem(config.databaseURL, cache)
+    ls.setItem(
+      config.databaseURL + "-timestamp",
+      JSON.stringify(timestampRootDict)
+    )
+  }
 
-    console.log('fetching from DB', path);
-    currentFetches[path] = new Promise(async (resolve) => {
-
-        const response = await fetch(config.databaseURL + '/' + path + '.json');
-        const data = JSON.parse(response);
-        delete currentFetches[path];
-        resolve(data);
-    });
-    const data = await currentFetches[path];
-    // store in cache variable
-    if (cache === null) {
-        cache = ls.getItem(config.databaseURL);
-        timestampCache = ls.getItem(config.databaseURL + '-timestamp');
-        if (!cache) {
-            cache = '{}';
-            rootDict = {};
-            ls.setItem(config.databaseURL, cache);
-            ls.setItem(config.databaseURL + '-timestamp', JSON.stringify({}));
-        }
-    }
-    if (cache) {
-        let dict = rootDict, timestampDict = timestampRootDict;
-        let splitPath = path.split('/').filter(e=>e!=="");
-        // goes through the path and builds the directory
-        // for the path
-        for (let i = 0; i < splitPath.length - 1; i++) {
-            if (!(splitPath[i] in dict)) {
-                dict[splitPath[i]] = {};
-                timestampDict[splitPath[i]] = {};
-            }
-            dict = dict[splitPath[i]];
-            timestampDict = timestampDict[splitPath[i]];
-            console.log(timestampDict);
-        }
-        dict[splitPath[splitPath.length - 1]] = data;
-        timestampDict[splitPath[splitPath.length - 1]] = {timestamp: Date.now()};
-        cache = JSON.stringify(rootDict);
-        ls.setItem(config.databaseURL, cache);
-        ls.setItem(config.databaseURL + '-timestamp', JSON.stringify(timestampRootDict));
-    }
-    
-    return data;
+  return data
 }
 
+export default async function fetchFromDb(
+  path: string,
+  forceFetch = false
+): Promise<Record<string, string>> {
+  if (forceFetch) {
+    getFromDb(path)
+  }
 
-export default async function fetchFromDb(path: string, forceFetch = false) : Promise<Record<string, string>> {
-    
-    if (forceFetch) {
-        getFromDb(path);
-    }
+  const cached = getFromLS(path)
+  if (cached) {
+    return cached
+  }
 
-    const cached = getFromLS(path);
-    if (cached) {
-        return cached;
-    }
-
-    return getFromDb(path);
+  return getFromDb(path)
 }

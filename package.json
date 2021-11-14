@@ -66,5 +66,12 @@
   "bugs": {
     "url": "https://github.com/zphyrj/MVHSSchedule/issues"
   },
-  "homepage": "https://github.com/zphyrj/MVHSSchedule#readme"
+  "homepage": "https://github.com/zphyrj/MVHSSchedule#readme",
+  "prettier": {
+    "tabWidth": 2,
+    "useTabs": false,
+    "arrowParens": "avoid",
+    "semi": false,
+    "trailingComma": "none"
+  }
 }
