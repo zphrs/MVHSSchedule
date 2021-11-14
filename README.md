@@ -1,3 +1,9 @@
+# MVHS Schedule
+
+MVHS Schedules is an easy library to fetch the periods on any specific day. It returns an array of Periods (Period {start: Date; end: Date; period: string}) to represent periods. It will work no matter what timezone it is run in.
+
+I use the firebase REST api to fetch the schedule and then I cache it to localstorage. It will refresh the data if it is older than a day.
+
 # TSDX User Guide
 
 Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
@@ -34,21 +40,6 @@ Jest tests are set up to run with `npm test` or `yarn test`.
 
 [`size-limit`](https://github.com/ai/size-limit) is set up to calculate the real cost of your library with `npm run size` and visualize the bundle with `npm run analyze`.
 
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
-```
-
 ### Rollup
 
 TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
@@ -76,7 +67,7 @@ declare var __DEV__: boolean
 
 // inside your code...
 if (__DEV__) {
-  console.log("foo")
+  console.log('foo')
 }
 ```
 

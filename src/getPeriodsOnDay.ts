@@ -1,6 +1,6 @@
-import { Period } from "./Period"
-import getScheduleFromDay from "./getScheduleFromDay"
-import periodsFromSchedule from "./getPeriodsFromSchedule"
+import { Period } from './Period'
+import getScheduleFromDay from './getScheduleFromDay'
+import periodsFromSchedule from './getPeriodsFromSchedule'
 
 export default async function getPeriodsOnDay(day: Date): Promise<Period[]> {
   // set time to midnight
@@ -10,7 +10,7 @@ export default async function getPeriodsOnDay(day: Date): Promise<Period[]> {
   const schedule = await getScheduleFromDay(dayCpy)
   console.log(schedule)
   // get periods for schedule
-  if (schedule === "none") {
+  if (schedule === 'none') {
     return []
   }
   const periodsOnDay = await periodsFromSchedule(dayCpy, schedule)

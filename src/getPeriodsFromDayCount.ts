@@ -1,5 +1,5 @@
-import getPeriodsOnDay from "./getPeriodsOnDay"
-import { Period } from "./Period"
+import getPeriodsOnDay from './getPeriodsOnDay'
+import { Period } from './Period'
 
 export default async function getPeriodsFromDayCount(
   day: Date,

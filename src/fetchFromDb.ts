@@ -1,25 +1,25 @@
-import https from "https"
+import https from 'https'
 
 async function fetch(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     https
       .get(url, res => {
-        let body = ""
-        res.on("data", chunk => {
+        let body = ''
+        res.on('data', chunk => {
           body += chunk
         })
-        res.on("end", () => {
+        res.on('end', () => {
           resolve(body)
         })
       })
-      .on("error", err => {
+      .on('error', err => {
         reject(err)
       })
   })
 }
 
 const config = {
-  databaseURL: "https://mvhs-app-d04d2.firebaseio.com"
+  databaseURL: 'https://mvhs-app-d04d2.firebaseio.com'
 }
 
 const ls = localStorage
@@ -36,7 +36,7 @@ let currentFetches: { [path: string]: Promise<Record<string, string>> } = {}
 function getFromLS(path: string) {
   if (cache === null) {
     cache = ls.getItem(config.databaseURL)
-    timestampCache = ls.getItem(config.databaseURL + "-timestamp")
+    timestampCache = ls.getItem(config.databaseURL + '-timestamp')
     if (!cache || !timestampCache) {
       return undefined
     }
@@ -44,14 +44,14 @@ function getFromLS(path: string) {
     timestampRootDict = JSON.parse(timestampCache)
   }
   if (cache && rootDict) {
-    let splitPath = path.split("/").filter(e => e !== "")
+    let splitPath = path.split('/').filter(e => e !== '')
     let dict = rootDict
     let timestampDict = timestampRootDict
     for (let i = 0; i < splitPath.length; i++) {
       dict = dict[splitPath[i]]
       timestampDict = timestampDict[splitPath[i]]
       if (!dict) {
-        console.log(path + " not cached")
+        console.log(path + ' not cached')
         return undefined
       }
     }
@@ -61,7 +61,7 @@ function getFromLS(path: string) {
     ) {
       return dict
     } else {
-      console.log(path + " not cached")
+      console.log(path + ' not cached')
       return undefined
     }
   }
@@ -76,9 +76,9 @@ async function getFromDb(path: string) {
     // and trust that it's being cached by the other thread
   }
 
-  console.log("fetching from DB", path)
+  console.log('fetching from DB', path)
   currentFetches[path] = new Promise(async resolve => {
-    const response = await fetch(config.databaseURL + "/" + path + ".json")
+    const response = await fetch(config.databaseURL + '/' + path + '.json')
     const data = JSON.parse(response)
     delete currentFetches[path]
     resolve(data)
@@ -87,18 +87,18 @@ async function getFromDb(path: string) {
   // store in cache variable
   if (cache === null) {
     cache = ls.getItem(config.databaseURL)
-    timestampCache = ls.getItem(config.databaseURL + "-timestamp")
+    timestampCache = ls.getItem(config.databaseURL + '-timestamp')
     if (!cache) {
-      cache = "{}"
+      cache = '{}'
       rootDict = {}
       ls.setItem(config.databaseURL, cache)
-      ls.setItem(config.databaseURL + "-timestamp", JSON.stringify({}))
+      ls.setItem(config.databaseURL + '-timestamp', JSON.stringify({}))
     }
   }
   if (cache) {
     let dict = rootDict,
       timestampDict = timestampRootDict
-    let splitPath = path.split("/").filter(e => e !== "")
+    let splitPath = path.split('/').filter(e => e !== '')
     // goes through the path and builds the directory
     // for the path
     for (let i = 0; i < splitPath.length - 1; i++) {
@@ -117,7 +117,7 @@ async function getFromDb(path: string) {
     cache = JSON.stringify(rootDict)
     ls.setItem(config.databaseURL, cache)
     ls.setItem(
-      config.databaseURL + "-timestamp",
+      config.databaseURL + '-timestamp',
       JSON.stringify(timestampRootDict)
     )
   }

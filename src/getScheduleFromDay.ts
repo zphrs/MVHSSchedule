@@ -1,5 +1,5 @@
-import fetchFromDb from "./fetchFromDb"
-import * as d from "./dbDate"
+import fetchFromDb from './fetchFromDb'
+import * as d from './dbDate'
 
 let specialDays: { [key: string]: string }
 interface SpecialDay {
@@ -13,7 +13,7 @@ let weekdayMap: Record<string, string>
 export default async function getScheduleFromDay(day: Date): Promise<string> {
   specialDays = await fetchFromDb(`/days`)
   for (let key in specialDays) {
-    let [start, end] = key.split("-")
+    let [start, end] = key.split('-')
     specialDaysDate.push({
       start: d.fromStr(start),
       // add 24 hours to end date to include the whole day
@@ -30,12 +30,12 @@ export default async function getScheduleFromDay(day: Date): Promise<string> {
     }
   }
 
-  weekdayMap = await fetchFromDb("/weekday-map")
+  weekdayMap = await fetchFromDb('/weekday-map')
 
   let schedule = weekdayMap[day.getDay()]
 
   if (schedule === undefined) {
-    throw new Error("No schedule for this day")
+    throw new Error('No schedule for this day')
   }
 
   return schedule

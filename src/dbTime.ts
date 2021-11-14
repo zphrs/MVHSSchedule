@@ -35,11 +35,11 @@ export function fromStr(day: Date, str: string) {
 export function toStr(date: Date) {
   // in format mmddyyyy and time in pst
   return date
-    .toLocaleTimeString("en-US", {
+    .toLocaleTimeString('en-US', {
       hour12: false,
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "PST"
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'PST'
     })
-    .replace(/:/g, "")
+    .replace(/:/g, '')
 }

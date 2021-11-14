@@ -1,6 +1,6 @@
-import periodsFromSchedule from "./getPeriodsFromSchedule"
-import getScheduleFromDay from "./getScheduleFromDay"
-import { Period } from "./Period"
+import periodsFromSchedule from './getPeriodsFromSchedule'
+import getScheduleFromDay from './getScheduleFromDay'
+import { Period } from './Period'
 
 export default async function timeOfPeriod(
   period: number,
