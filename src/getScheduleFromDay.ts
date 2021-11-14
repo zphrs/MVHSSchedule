@@ -28,14 +28,11 @@ export default async function getScheduleFromDay(day : Date) : Promise<string> {
     // check special days to see if the day is a special day
     for (let specialDay of specialDaysDate) {
         if (specialDay.start <= day && specialDay.end >= day) {
-            console.log("special day on " + day + ": " + specialDay.schedule);
             return specialDay.schedule;
         }
     }
 
     weekdayMap = await fetchFromDb("/weekday-map");
-
-    console.log(day.getDay(), day);
 
     let schedule = weekdayMap[day.getDay()];
 

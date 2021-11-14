@@ -1,3 +1,22 @@
+import https from 'https';
+
+async function fetch(url:string) : Promise<string> {
+
+    return new Promise((resolve, reject) => {
+        https.get(url, (res) => {
+            let body = '';
+            res.on('data', (chunk) => {
+                body += chunk;
+            });
+            res.on('end', () => {
+                resolve(body);
+            });
+        }).on('error', (err) => {
+            reject(err);
+        });
+    });
+}
+
 const config = {
     databaseURL: 'https://mvhs-app-d04d2.firebaseio.com'
 };
@@ -55,10 +74,10 @@ async function getFromDb(path: string) {
     }
 
     console.log('fetching from DB', path);
-    currentFetches[path] = new Promise(async (resolve, reject) => {
+    currentFetches[path] = new Promise(async (resolve) => {
 
         const response = await fetch(config.databaseURL + '/' + path + '.json');
-        const data = await response.json();
+        const data = JSON.parse(response);
         delete currentFetches[path];
         resolve(data);
     });

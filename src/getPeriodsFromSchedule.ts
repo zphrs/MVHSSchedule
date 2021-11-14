@@ -8,7 +8,6 @@ export default async function periodsFromSchedule(date: Date, schedule: String):
     for (let key in periods) {
         const period = key;
         const [start, end] = period.split("-");
-        console.log("date: " + date)
         out.push({
             start: time.fromStr(date, start),
             end: time.fromStr(date, end),
