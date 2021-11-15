@@ -1,20 +1,107 @@
 # MVHS Schedule
 
-MVHS Schedules is an easy library to fetch the periods on any specific day. It returns an array of Periods (Period {start: Date; end: Date; period: string}) to represent periods. It will work no matter what timezone it is run in.
+MVHS Schedule is an easy library to fetch the periods on any specific day. It returns an array of Periods (Period {start: Date; end: Date; period: string}) to represent periods. It will work no matter what timezone it is run in.
 
 I use the firebase REST api to fetch the schedule and then I cache it to localstorage. It will refresh the data if it is older than a day.
 
+## Functions:
+
+```ts
+getScheduleFromDay(day: Date): Promise<string>
+
+```
+
+Returns a string of what schedule is on that day. Used internally by getPeriodsOnDay.
+
+```ts
+const schedule = getScheduleFromDay(new Date('11/15/2021'))
+/* example output:
+"Schedule A"
+*/
+```
+
+```ts
+getPeriodsFromSchedule(date: Date, schedule: String): Promise<Period[]>
+```
+
+Gets the periods for a schedule. The date is required to set the correct day for the returned period array's Date objects. Used internally in getPeriodsOnDay.
+
+```ts
+getPeriodsFromSchedule(new Date('11/15/2021'), 'Schedule A')
+/* Example output:
+[
+  {
+    start: "2020-11-15T00:00:00.000Z",
+    end: "2020-11-15T01:00:00.000Z",
+    period: "1"
+  }
+]
+*/
+```
+
+```ts
+getPeriodsOnDay(day: Date): Promise<Period[]>
+```
+
+Gets the periods on a day. Internally calls both getScheduleFromDay and getPeriodsFromSchedule.
+
+```ts
+getPeriodsOnDay(new Date('11/15/2021'))
+/* Example output:
+[
+  {
+    start: "2020-11-15T00:00:00.000Z",
+    end: "2020-11-15T01:00:00.000Z",
+    period: "1"
+  }
+]
+*/
+```
+
+```ts
+getPeriodsFromDayCount(day: Date, dayCount : Number) : Promise<Period[][]>
+```
+
+returns an array of array of Periods, one array for each day, starting with the input day and going forwards for dayCount days.
+Example:
+
+```js
+getPeriodsFromDayCount(new Date('11/15/2021'), dayCount)
+/* Example output:
+[
+  [
+    {
+      start: "2020-11-15T00:00:00.000Z",
+      end: "2020-11-15T01:00:00.000Z",
+      period: "1"
+    }
+  ]
+]
+*/
+```
+
+```ts
+getTimeOfPeriod(period: number, date:Date): Promise<Period>
+```
+
+Gets the time of a period by calling getPeriodsOnDay and then returns a single Period object.
+
+```ts
+getTimeOfPeriod(1, new Date('11/15/2021'))
+/* Example output:
+{
+  start: "2020-11-15T00:00:00.000Z",
+  end: "2020-11-15T01:00:00.000Z",
+  period: "1"
+}
+*/
+```
+
 # TSDX User Guide
-
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
-
-> This TSDX setup is meant for developing libraries (not apps!) that can be published to NPM. If you’re looking to build a Node app, you could use `ts-node-dev`, plain `ts-node`, or simple `tsc`.
 
 > If you’re new to TypeScript, checkout [this handy cheatsheet](https://devhints.io/typescript)
 
 ## Commands
-
-TSDX scaffolds your new library inside `/src`.
 
 To run TSDX, use:
 
@@ -71,24 +158,6 @@ if (__DEV__) {
 }
 ```
 
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
-
-## Module Formats
-
-CJS, ESModules, and UMD module formats are supported.
-
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
-
 ## Named Exports
 
 Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
-
-## Including Styles
-
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
-
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
-
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).

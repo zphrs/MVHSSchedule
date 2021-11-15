@@ -8,7 +8,6 @@ export default async function getPeriodsOnDay(day: Date): Promise<Period[]> {
   dayCpy.setHours(8, 0, 0, 0)
   // get schedule for day
   const schedule = await getScheduleFromDay(dayCpy)
-  console.log(schedule)
   // get periods for schedule
   if (schedule === 'none') {
     return []

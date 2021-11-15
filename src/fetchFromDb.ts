@@ -51,7 +51,9 @@ function getFromLS(path: string) {
       dict = dict[splitPath[i]]
       timestampDict = timestampDict[splitPath[i]]
       if (!dict) {
-        console.log(path + ' not cached')
+        if (process.env.NODE_ENV === 'development') {
+          console.log(path + ' not cached')
+        }
         return undefined
       }
     }
@@ -61,7 +63,9 @@ function getFromLS(path: string) {
     ) {
       return dict
     } else {
-      console.log(path + ' not cached')
+      if (process.env.NODE_ENV === 'development') {
+        console.log(path + ' not cached')
+      }
       return undefined
     }
   }
@@ -75,8 +79,9 @@ async function getFromDb(path: string) {
     // so we can just return it
     // and trust that it's being cached by the other thread
   }
-
-  console.log('fetching from DB', path)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('fetching ' + path + ' from web db')
+  }
   currentFetches[path] = new Promise(async resolve => {
     const response = await fetch(config.databaseURL + '/' + path + '.json')
     const data = JSON.parse(response)
@@ -108,7 +113,6 @@ async function getFromDb(path: string) {
       }
       dict = dict[splitPath[i]]
       timestampDict = timestampDict[splitPath[i]]
-      console.log(timestampDict)
     }
     dict[splitPath[splitPath.length - 1]] = data
     timestampDict[splitPath[splitPath.length - 1]] = {

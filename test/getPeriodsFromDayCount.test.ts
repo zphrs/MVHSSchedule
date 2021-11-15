@@ -2,7 +2,6 @@ import getPeriodsFromDayCount from '../src/getPeriodsFromDayCount'
 
 describe('getPeriodsFromDayCount', () => {
   it('gets schedule on December 15, 2021. Tests special schedule', async () => {
-    console.log(await getPeriodsFromDayCount(new Date(2021, 11, 15), 1))
     expect(await getPeriodsFromDayCount(new Date(2021, 11, 15), 1)).toEqual([
       [
         {
