@@ -2,7 +2,7 @@
 
 MVHS Schedule is an easy library to fetch the periods on any specific day. It returns an array of Periods (Period {start: Date; end: Date; period: string}) to represent periods. It will work no matter what timezone it is run in.
 
-I use the firebase REST api to fetch the schedule and then I cache it to localstorage. It will refresh the data if it is older than a day.
+I use the firebase REST api to fetch the schedule and then I cache it to localstorage. It will refresh the data if it is older than a day. If there is an error anyway then it will use the cached data anyway, even if it's expired. If there is no cached data then it will throw an error.
 
 ## Functions:
 
