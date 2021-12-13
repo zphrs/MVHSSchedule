@@ -33,7 +33,7 @@ let timestampRootDict: any = {}
 
 let currentFetches: { [path: string]: Promise<Record<string, string>> } = {}
 
-function getFromLS(path: string) {
+function getFromLS(path: string, ignoreTimestamp?: boolean) {
   if (cache === null) {
     cache = ls.getItem(config.databaseURL)
     timestampCache = ls.getItem(config.databaseURL + '-timestamp')
@@ -58,13 +58,14 @@ function getFromLS(path: string) {
       }
     }
     if (
-      timestampDict.timestamp &&
-      Date.now() - timestampDict.timestamp < 1000 * 60 * 60 * 24
+      ignoreTimestamp ||
+      (timestampDict.timestamp &&
+        Date.now() - timestampDict.timestamp < 1000 * 60 * 60 * 24)
     ) {
       return dict
     } else {
       if (process.env.NODE_ENV === 'development') {
-        console.log(path + ' not cached')
+        console.log(path + ' expired')
       }
       return undefined
     }
@@ -82,8 +83,14 @@ async function getFromDb(path: string) {
   if (process.env.NODE_ENV === 'development') {
     console.log('fetching ' + path + ' from web db')
   }
-  currentFetches[path] = new Promise(async resolve => {
-    const response = await fetch(config.databaseURL + '/' + path + '.json')
+  currentFetches[path] = new Promise(async (resolve, reject) => {
+    let response
+    try {
+      response = await fetch(config.databaseURL + '/' + path + '.json')
+    } catch (err) {
+      reject(err)
+      return
+    }
     const data = JSON.parse(response)
     delete currentFetches[path]
     resolve(data)
@@ -134,13 +141,21 @@ export default async function fetchFromDb(
   forceFetch = false
 ): Promise<Record<string, string>> {
   if (forceFetch) {
-    getFromDb(path)
+    return getFromDb(path)
   }
 
   const cached = getFromLS(path)
   if (cached) {
     return cached
   }
-
-  return getFromDb(path)
+  let out
+  try {
+    out = await getFromDb(path)
+  } catch (error) {
+    out = getFromLS(path, true)
+  }
+  if (out === undefined) {
+    throw new Error('No data available in cache or online for ' + path)
+  }
+  return out
 }

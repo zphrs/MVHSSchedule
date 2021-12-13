@@ -46,9 +46,6 @@
     "tslib": "^2.3.1",
     "typescript": "^3.9.10"
   },
-  "dependencies": {
-    "node-fetch": "^3.1.0"
-  },
   "type": "module",
   "description": "MVHS Schedules is an easy library to fetch the periods on any specific day. It returns an array of Periods (Period {start: Date; end: Date; period: string}) to represent periods. It will work no matter what timezone it is run in.",
   "directories": {
