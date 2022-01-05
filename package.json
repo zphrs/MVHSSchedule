@@ -69,6 +69,6 @@
     "singleQuote": true
   },
   "exports": {
-    "default": "./dist/mvhs-schedule.cjs.production.min.js"
+    "default": "./src/index.ts"
   }
 }
