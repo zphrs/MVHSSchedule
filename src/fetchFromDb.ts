@@ -1,6 +1,6 @@
 import https from 'https'
 
-async function fetchFill(url: string): Promise<string> {
+async function fetchFill(url: string): Promise<Response> {
   return new Promise((resolve, reject) => {
     https
       .get(url, res => {
@@ -9,7 +9,7 @@ async function fetchFill(url: string): Promise<string> {
           body += chunk
         })
         res.on('end', () => {
-          resolve(body)
+          resolve(new Response(body))
         })
       })
       .on('error', err => {
@@ -18,7 +18,7 @@ async function fetchFill(url: string): Promise<string> {
   })
 }
 
-const fetch = window && window.fetch ? window.fetch : fetchFill
+const fetch = window.fetch ?? fetchFill
 
 const config = {
   databaseURL: 'https://mvhs-app-d04d2.firebaseio.com'
@@ -93,7 +93,7 @@ async function getFromDb(path: string) {
       reject(err)
       return
     }
-    const data = JSON.parse(response)
+    const data = JSON.parse(await response.text())
     delete currentFetches[path]
     resolve(data)
   })
