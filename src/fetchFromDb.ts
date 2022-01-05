@@ -1,22 +1,23 @@
 import https from 'https'
 
-async function fetch(url: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    https
-      .get(url, res => {
-        let body = ''
-        res.on('data', chunk => {
-          body += chunk
+if (!fetch)
+  async function fetch(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      https
+        .get(url, res => {
+          let body = ''
+          res.on('data', chunk => {
+            body += chunk
+          })
+          res.on('end', () => {
+            resolve(body)
+          })
         })
-        res.on('end', () => {
-          resolve(body)
+        .on('error', err => {
+          reject(err)
         })
-      })
-      .on('error', err => {
-        reject(err)
-      })
-  })
-}
+    })
+  }
 
 const config = {
   databaseURL: 'https://mvhs-app-d04d2.firebaseio.com'
