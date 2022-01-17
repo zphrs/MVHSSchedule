@@ -1,7 +1,7 @@
 export function fromStr(str: string) {
   // in pst
   return new Date(
-    str.slice(0, 2) + '-' + str.slice(2, 4) + '-' + str.slice(4, 8)
+    str.slice(0, 2) + '/' + str.slice(2, 4) + '/' + str.slice(4, 8)
   )
 }
 
