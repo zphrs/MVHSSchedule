@@ -1,6 +1,6 @@
 import https from 'https'
 
-async function fetchFill(url: string): Promise<Response> {
+async function fetchFill(url: string) {
   return new Promise((resolve, reject) => {
     https
       .get(url, res => {
@@ -9,7 +9,11 @@ async function fetchFill(url: string): Promise<Response> {
           body += chunk
         })
         res.on('end', () => {
-          resolve(new Response(body))
+          resolve({
+            text: () => {
+              return body
+            }
+          })
         })
       })
       .on('error', err => {
