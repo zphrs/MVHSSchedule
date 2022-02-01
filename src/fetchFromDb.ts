@@ -66,7 +66,7 @@ function getFromLS(path: string, ignoreTimestamp?: boolean) {
     if (
       ignoreTimestamp ||
       (timestampDict.timestamp &&
-        Date.now() - timestampDict.timestamp < 1000 * 60 * 60)
+        Date.now() - timestampDict.timestamp < 1000 * 60 * 60 * 1)
     ) {
       return dict
     } else {
